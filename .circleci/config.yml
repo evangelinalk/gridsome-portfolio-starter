@@ -1,28 +1,27 @@
-version: 2
-    
+version: 2.1
+orbs:
+  node: circleci/node@1.1.6
 jobs:
   docs-deploy:
-    docker:
-      - image: node:8.10.0
+    executor:
+      name: node/default
     steps:
       - checkout
-      - attach_workspace:
-          at: docs/_build
-      - run:
-          name: Install and configure dependencies
-          command: |
-            npm install -g --silent gh-pages@2.0.1
-            git config user.email "gcevangelina@gmail.com"
-            git config user.name "evangelinalk"
-      - run:
-          name: Deploy docs to gh-pages branch
-          command: gh-pages --dist docs/_build/html
+      - node/with-cache:
+          steps:
+            - run:
+              name: Install and configure dependencies
+              command: |
+                npm install -g --silent gh-pages@2.0.1
+                git config user.email "gcevangelina@gmail.com"
+                git config user.name "evangelinalk"
+            - run:
+              name: Deploy docs to gh-pages branch
+              command: gh-pages --dist docs/_build/html
 workflows:
-  version: 2
-  build:
-    jobs:
-      - docs-build
-      - docs-deploy:
+    build-and-test:
+      jobs:
+        - docs-deploy:
           requires:
             - docs-build
           filters:
